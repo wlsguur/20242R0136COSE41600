@@ -32,10 +32,8 @@ def get_moved_pedestrian(center_prev, pcd_cur):
     nearest_pcd = o3d.geometry.PointCloud()
     nearest_pcd.points = o3d.utility.Vector3dVector(nearest_points)
     pcd, labels = DBSCAN(nearest_pcd)
-    pedestrian, bbox, center = get_pedestrians(pcd, labels)
 
-    #assert len(bbox) > 0, "there is no moved pedestrian"
-    return pedestrian, bbox, center
+    return get_pedestrians(pcd, labels)
 
 def is_directional(points_prev, tree, cluster_points, similarity_threshold=0.9):
     direction_vectors = []
@@ -82,7 +80,7 @@ def get_directional_moving_objects(pcd_prev, pcd_cur, labels):
 def get_pedestrians(pcd, labels):
     num_clusters = labels.max() + 1
 
-    min_points_in_cluster = 0
+    min_points_in_cluster = 10
     max_points_in_cluster = 100
 
     min_z_value = -1.0
@@ -103,8 +101,6 @@ def get_pedestrians(pcd, labels):
             z_values = points[:, 2]
             z_min = z_values.min()
             z_max = z_values.max()
-
-            #variance_xyz = np.var(points, axis=0)
 
             if min_z_value <= z_min and z_max <= max_z_value:
                 height_diff = z_max - z_min
