@@ -25,28 +25,42 @@ for data_name in tqdm(sorted(os.listdir(data_dir))):
     pcd = preprocess_pcd(pcd)
     pcd_list.append(pcd)
 
-    if i % period != 0 and previous_centers is not None:
-        for center in previous_centers:
-            pedestrians, bboxes, centers = get_moved_pedestrian(center, pcd)
+    if i < period:
+        bbox_list.append(None)
+
+    elif i % period == 0 and previous_pcd is not None:
+        moving_pcd = get_moving_pcd(previous_pcd, pcd, threshold=0.5)
+        if moving_pcd is not None:
+            moving_pcd, labels = DBSCAN(moving_pcd)
+            pedestrians, bboxes, centers = get_pedestrians(moving_pcd, labels)
             pedestrian_list.append(pedestrians)
             bbox_list.append(bboxes)
             previous_centers = centers
-
-    elif previous_pcd is not None:
-        moving_pcd = get_moving_pcd(previous_pcd, pcd)
-        if moving_pcd:
-            moving_pcd, labels = DBSCAN(moving_pcd)
-            moving_pcd, bboxes, centers = get_pedestrians(moving_pcd, labels)
-            pedestrian_list.append(moving_pcd)
-            bbox_list.append(bboxes)
-            previous_centers = centers
             previous_pcd = pcd
+        else:
+            bbox_list.append(None)
 
-    elif previous_pcd is None:
+    elif i % period != 0 and previous_centers is not None:
+        temp_bboxes = []
+        temp_centers = []
+        for center in previous_centers:
+            if center is not None:
+                pedestrians, bboxes, centers = get_moved_pedestrian(center, pcd)
+                pedestrian_list.append(pedestrians)
+                temp_bboxes.extend(bboxes)
+                temp_centers.extend(centers)
+
+        bbox_list.append(temp_bboxes) if temp_bboxes else bbox_list.append(None)
+        previous_centers = temp_centers if temp_centers else None
+
+    else:
+        bbox_list.append(None)
+    
+    if previous_pcd is None:
         previous_pcd = pcd
 
 if pedestrian_list:
     #o3d.visualization.draw_geometries(pedestrian_list, window_name="Moving Objects", width=1600, height=1200)
-    visualize_pcd_sequence(pcd_list, bbox_list)    
+    visualize_pcd_sequence(pcd_list, bbox_list)
 else:
     print("No moving objects detected.")
