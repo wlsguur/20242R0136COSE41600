@@ -24,7 +24,7 @@ def get_moving_pcd(pcd_prev, pcd_cur, threshold=0.2):
         moving_pcd = None
 
     return moving_pcd
-
+    
 def get_moved_pedestrian(center_prev, pcd_cur):
     tree = o3d.geometry.KDTreeFlann(pcd_cur)
     _, idxs, _ = tree.search_knn_vector_3d(center_prev, 50)
@@ -32,8 +32,28 @@ def get_moved_pedestrian(center_prev, pcd_cur):
     nearest_pcd = o3d.geometry.PointCloud()
     nearest_pcd.points = o3d.utility.Vector3dVector(nearest_points)
     pcd, labels = DBSCAN(nearest_pcd)
+    num_clusters = labels.max() + 1
 
-    return get_pedestrians(pcd, labels)
+    if num_clusters == 1:
+        return get_pedestrians(pcd, labels)
+    
+    elif num_clusters > 1:
+        cluster_distances = []
+        cluster_pcds = []
+
+        for i in range(num_clusters):
+            cluster_idx = np.where(labels == i)[0]
+            cluster_pcd = pcd.select_by_index(cluster_idx)
+            cluster_center = np.array(cluster_pcd.points).mean(axis=0)
+            distance = np.linalg.norm(cluster_center - center_prev)
+            cluster_distances.append(distance)
+            cluster_pcds.append(cluster_pcd)
+
+        closest_cluster_idx = np.argmin(cluster_distances)
+        selected_pcd = cluster_pcds[closest_cluster_idx]
+        selected_labels = np.full(len(cluster_pcd.points), 0)
+        return get_pedestrians(selected_pcd, selected_labels)
+
 
 def is_directional(points_prev, tree, cluster_points, similarity_threshold=0.9):
     direction_vectors = []
@@ -69,8 +89,8 @@ def get_directional_moving_objects(pcd_prev, pcd_cur, labels):
 
     moving_objects = o3d.geometry.PointCloud()
     for i in range(num_clusters):
-        cluster_indices = np.where(labels == i)[0]
-        cluster_pcd = pcd_cur.select_by_index(cluster_indices)
+        cluster_idxs = np.where(labels == i)[0]
+        cluster_pcd = pcd_cur.select_by_index(cluster_idxs)
         cluster_points = np.asarray(cluster_pcd.points)
         if is_directional(points_prev, tree, cluster_points):
             moving_objects += cluster_pcd
@@ -81,7 +101,7 @@ def get_pedestrians(pcd, labels):
     num_clusters = labels.max() + 1
 
     min_points_in_cluster = 10
-    max_points_in_cluster = 100
+    max_points_in_cluster = 60
 
     min_z_value = -1.0
     max_z_value = 5.0
@@ -94,9 +114,9 @@ def get_pedestrians(pcd, labels):
 
     pedestrians = o3d.geometry.PointCloud()
     for i in range(num_clusters):
-        cluster_indices = np.where(labels == i)[0]
-        if min_points_in_cluster <= len(cluster_indices) <= max_points_in_cluster:
-            cluster_pcd = pcd.select_by_index(cluster_indices)
+        cluster_idxs = np.where(labels == i)[0]
+        if min_points_in_cluster <= len(cluster_idxs) <= max_points_in_cluster:
+            cluster_pcd = pcd.select_by_index(cluster_idxs)
             points = np.asarray(cluster_pcd.points)
             z_values = points[:, 2]
             z_min = z_values.min()
