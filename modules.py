@@ -34,10 +34,10 @@ def get_moved_pedestrian(center_prev, pcd_cur):
     pcd, labels = DBSCAN(nearest_pcd)
     num_clusters = labels.max() + 1
 
-    if num_clusters == 1:
+    if num_clusters <= 1:
         return get_pedestrians(pcd, labels)
     
-    elif num_clusters > 1:
+    else:
         cluster_distances = []
         cluster_pcds = []
 
