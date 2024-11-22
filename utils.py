@@ -38,23 +38,17 @@ def visualize_pcd(pcd, bounding_boxes=None, window_name="Filtered Clusters and B
     vis.run()
     vis.destroy_window()
 
-def visualize_pcd_sequence(pcd_sequence, bbox_sequence=None, window_name="PCD Sequence Visualization", point_size=1.0, fps=5):
+def visualize_pcd_sequence(pcd_sequence, bbox_sequence, window_name="PCD Sequence Visualization", point_size=1.0, fps=5):
     vis = o3d.visualization.Visualizer()
     vis.create_window(window_name=window_name)
     vis.get_render_option().point_size = point_size
 
-    vis.add_geometry(pcd_sequence[0])
-    if bbox_sequence:
-        for bbox in bbox_sequence[0]:
-            vis.add_geometry(bbox)
-
     for i in range(len(pcd_sequence)):
         vis.clear_geometries()
         vis.add_geometry(pcd_sequence[i])
-        if bbox_sequence:
+        if bbox_sequence[i] is not None:
             for bbox in bbox_sequence[i]:
                 vis.add_geometry(bbox)
-
         vis.poll_events()
         vis.update_renderer()
 
