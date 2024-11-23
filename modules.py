@@ -53,49 +53,6 @@ def get_moved_pedestrian(center_prev, pcd_cur):
         selected_pcd = cluster_pcds[closest_cluster_idx]
         selected_labels = np.full(len(cluster_pcd.points), 0)
         return get_pedestrians(selected_pcd, selected_labels)
-
-
-def is_directional(points_prev, tree, cluster_points, similarity_threshold=0.9):
-    direction_vectors = []
-
-    for point in cluster_points:
-        _, idx, _ = tree.search_knn_vector_3d(point, 1)
-        nearest_point = points_prev[idx[0]]
-        direction = point - nearest_point
-        direction_vectors.append(direction)
-
-    direction_vectors = np.array(direction_vectors)
-
-    norms = np.linalg.norm(direction_vectors, axis=1, keepdims=True)
-    unit_vectors = direction_vectors / (norms + 1e-8)
-
-    mean_vector = np.mean(unit_vectors, axis=0)
-    mean_vector /= np.linalg.norm(mean_vector)
-
-    cosine_similarities = np.dot(unit_vectors, mean_vector)
-
-    directional_count = np.sum(cosine_similarities > similarity_threshold)
-    is_directional = directional_count / len(cosine_similarities) > 0.8
-
-    return is_directional
-
-
-def get_directional_moving_objects(pcd_prev, pcd_cur, labels):
-    
-    num_clusters = labels.max() + 1
-    
-    points_prev = np.asarray(pcd_prev.points)
-    tree = o3d.geometry.KDTreeFlann(pcd_prev)
-
-    moving_objects = o3d.geometry.PointCloud()
-    for i in range(num_clusters):
-        cluster_idxs = np.where(labels == i)[0]
-        cluster_pcd = pcd_cur.select_by_index(cluster_idxs)
-        cluster_points = np.asarray(cluster_pcd.points)
-        if is_directional(points_prev, tree, cluster_points):
-            moving_objects += cluster_pcd
-
-    return moving_objects
     
 def get_pedestrians(pcd, labels):
     num_clusters = labels.max() + 1
