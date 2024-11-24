@@ -33,8 +33,9 @@ class ScanUpdatePipeline():
         if moving_pcd is not None:
             moving_pcd, labels = DBSCAN(moving_pcd)
             pedestrians, idxs, bboxes, centers = get_pedestrians(moving_pcd, labels)
-            self.moving_pcd_list.append(moving_pcd.select_by_index(idxs, invert=True))
-            pedestrians = set_color(pedestrians, color=[1,0,0])
+            moving_pcd = set_color(moving_pcd.select_by_index(idxs, invert=True), color=(0,0,0))
+            self.moving_pcd_list.append(moving_pcd)
+            pedestrians = set_color(pedestrians, color=(1,0,0))
             self.pedestrian_list.append(pedestrians)
             self.bbox_list.append(bboxes)
             self.centers_prev = centers
@@ -48,7 +49,7 @@ class ScanUpdatePipeline():
         for center in self.centers_prev:
             if center is not None:
                 pedestrians, _, bboxes, centers = get_moved_pedestrian(center, self.pcd_cur)
-                pedestrians = set_color(pedestrians, color=[0,0,1])
+                pedestrians = set_color(pedestrians, color=(0,0,1))
                 self.pedestrian_list.append(pedestrians)
                 temp_bboxes.extend(bboxes)
                 temp_centers.extend(centers)

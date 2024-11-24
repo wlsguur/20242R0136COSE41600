@@ -19,8 +19,7 @@ def preprocess_pcd(pcd):
 
     return preproessed_pcd
 
-def set_color(pcd, color):
-    color = np.array(color)  # color = [R, G, B]
+def set_color(pcd, color):  # color = (R, G, B)
     pcd.colors = o3d.utility.Vector3dVector(np.tile(color, (len(pcd.points), 1)))
     return pcd
 
