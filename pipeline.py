@@ -2,7 +2,7 @@ import open3d as o3d
 import os
 import numpy as np
 from tqdm import tqdm
-from utils import set_color, preprocess_pcd, DBSCAN, visualize_pcd_trajectory, save_pcd_trajectory, visualize_pcd_sequence
+from utils import set_color, preprocess_pcd, DBSCAN, visualize_pcd_trajectory, save_pcd_trajectory, visualize_pcd_sequence, analyze_pedestrians
 from modules import get_moving_pcd, get_pedestrians, get_moved_pedestrian
 
 class ScanUpdatePipeline():
@@ -79,7 +79,8 @@ class ScanUpdatePipeline():
             show_video=False,
             save_trajectory=False,
             save_video=False,
-            save_dir="result/"):
+            save_dir="result/",
+            analyze=False):
         
         self.predict_loop(period)
 
@@ -97,3 +98,5 @@ class ScanUpdatePipeline():
                                    self.bbox_list,
                                    save_video=save_video,
                                    save_dir=save_dir)
+        if analyze:
+            analyze_pedestrians(self.pedestrian_list)
