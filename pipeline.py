@@ -1,7 +1,8 @@
 import open3d as o3d
 import os
+import numpy as np
 from tqdm import tqdm
-from utils import preprocess_pcd, DBSCAN, visualize_pcd_trajectory, save_pcd_trajectory, visualize_pcd_sequence
+from utils import set_color, preprocess_pcd, DBSCAN, visualize_pcd_trajectory, save_pcd_trajectory, visualize_pcd_sequence
 from modules import get_moving_pcd, get_pedestrians, get_moved_pedestrian
 
 class ScanUpdatePipeline():
@@ -9,8 +10,8 @@ class ScanUpdatePipeline():
     def __init__(self):
         self.pcd_dataset = []
         self.pedestrian_list = []
+        self.moving_pcd_list = []
         self.bbox_list = []
-        self.pcd_list = []
         self.pcd_cur = None
         self.pcd_prev = None
         self.centers_prev = None
@@ -31,7 +32,9 @@ class ScanUpdatePipeline():
         moving_pcd = get_moving_pcd(self.pcd_prev, self.pcd_cur, threshold=threshold)
         if moving_pcd is not None:
             moving_pcd, labels = DBSCAN(moving_pcd)
-            pedestrians, bboxes, centers = get_pedestrians(moving_pcd, labels)
+            pedestrians, idxs, bboxes, centers = get_pedestrians(moving_pcd, labels)
+            self.moving_pcd_list.append(moving_pcd.select_by_index(idxs, invert=True))
+            pedestrians = set_color(pedestrians, color=[1,0,0])
             self.pedestrian_list.append(pedestrians)
             self.bbox_list.append(bboxes)
             self.centers_prev = centers
@@ -44,7 +47,8 @@ class ScanUpdatePipeline():
         temp_centers = []
         for center in self.centers_prev:
             if center is not None:
-                pedestrians, bboxes, centers = get_moved_pedestrian(center, self.pcd_cur)
+                pedestrians, _, bboxes, centers = get_moved_pedestrian(center, self.pcd_cur)
+                pedestrians = set_color(pedestrians, color=[0,0,1])
                 self.pedestrian_list.append(pedestrians)
                 temp_bboxes.extend(bboxes)
                 temp_centers.extend(centers)
@@ -82,10 +86,10 @@ class ScanUpdatePipeline():
             os.makedirs(save_dir)
         
         if show_trajectory:
-            visualize_pcd_trajectory(self.pedestrian_list)
+            visualize_pcd_trajectory(self.pedestrian_list + self.moving_pcd_list)
 
         if save_trajectory:
-            save_pcd_trajectory(self.pedestrian_list,
+            save_pcd_trajectory(self.pedestrian_list + self.moving_pcd_list,
                                      save_dir=save_dir)
         if show_video or save_video:
             visualize_pcd_sequence(self.pcd_dataset,
