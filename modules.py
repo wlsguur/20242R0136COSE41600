@@ -70,6 +70,7 @@ def get_pedestrians(pcd, labels):
     centers = []
 
     pedestrians = o3d.geometry.PointCloud()
+    pedestrian_idxs = []
     for i in range(num_clusters):
         cluster_idxs = np.where(labels == i)[0]
         if min_points_in_cluster <= len(cluster_idxs) <= max_points_in_cluster:
@@ -87,5 +88,6 @@ def get_pedestrians(pcd, labels):
                     bboxes.append(bbox)
                     centers.append(points.mean(axis=0))
                     pedestrians += cluster_pcd
+                    pedestrian_idxs.extend(cluster_idxs)
 
-    return pedestrians, bboxes, centers
+    return pedestrians, pedestrian_idxs, bboxes, centers
