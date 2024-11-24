@@ -17,7 +17,7 @@ class ScanUpdatePipeline():
         self.centers_prev = None
     
     def reset(self):
-        self.__init__(self)
+        self.__init__()
      
     def get_dataset(self, data_dir):
         for data_name in tqdm(sorted(os.listdir(data_dir)), desc="Load PCD dataset"):
