@@ -101,3 +101,82 @@ def visualize_pcd_sequence(pcd_sequence,
     if save_video:
         video_writer.release()
         print(f"Video saved to {save_path}")
+
+def analyze_pedestrians(pedestrian_list):
+    x_ranges = []
+    y_ranges = []
+    z_max_values = []
+    z_min_values = []
+    z_ranges = []
+
+    for pedestrian in pedestrian_list:
+        if not pedestrian.points:
+            continue
+
+        points = np.asarray(pedestrian.points)
+        
+        x_min, x_max = points[:, 0].min(), points[:, 0].max()
+        y_min, y_max = points[:, 1].min(), points[:, 1].max()
+        z_min, z_max = points[:, 2].min(), points[:, 2].max()
+
+        x_ranges.append(x_max - x_min)
+        y_ranges.append(y_max - y_min)
+        z_max_values.append(z_max)
+        z_min_values.append(z_min)
+        z_ranges.append(z_max - z_min)
+
+    plt.figure(figsize=(16, 12))
+
+    # Z-axis: Max, Min, and Range
+    plt.subplot(2, 3, 1)
+    plt.hist(z_max_values, bins=10, color='red', alpha=0.7, label='Z Max Values')
+    plt.title("Histogram of Z Max Values")
+    plt.xlabel("Z Max")
+    plt.ylabel("Frequency")
+    plt.legend()
+
+    plt.subplot(2, 3, 2)
+    plt.hist(z_min_values, bins=10, color='pink', alpha=0.7, label='Z Min Values')
+    plt.title("Histogram of Z Min Values")
+    plt.xlabel("Z Min")
+    plt.ylabel("Frequency")
+    plt.legend()
+
+    plt.subplot(2, 3, 3)
+    plt.hist(z_ranges, bins=10, color='red', alpha=0.7, label='Z Ranges')
+    plt.title("Histogram of Z Ranges")
+    plt.xlabel("Z Range (Max - Min)")
+    plt.ylabel("Frequency")
+    plt.legend()
+
+    # X-axis: Range
+    plt.subplot(2, 3, 4)
+    plt.hist(x_ranges, bins=10, color='blue', alpha=0.7, label='X Ranges')
+    plt.title("Histogram of X Ranges")
+    plt.xlabel("X Range (Max - Min)")
+    plt.ylabel("Frequency")
+    plt.legend()
+
+    # Y-axis: Range
+    plt.subplot(2, 3, 5)
+    plt.hist(y_ranges, bins=10, color='green', alpha=0.7, label='Y Ranges')
+    plt.title("Histogram of Y Ranges")
+    plt.xlabel("Y Range (Max - Min)")
+    plt.ylabel("Frequency")
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+    plt.figure(figsize=(12, 8))
+    plt.boxplot([z_max_values, z_min_values, z_ranges, x_ranges, y_ranges],
+                labels=['Z Max', 'Z Min', 'Z Range', 'X Range', 'Y Range'],
+                patch_artist=True,
+                boxprops=dict(facecolor='lightblue', color='blue'),
+                medianprops=dict(color='red'))
+
+    plt.title("Boxplot of Z, X, and Y Values and Ranges")
+    plt.ylabel("Value")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
