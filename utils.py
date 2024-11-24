@@ -19,6 +19,11 @@ def preprocess_pcd(pcd):
 
     return preproessed_pcd
 
+def set_color(pcd, color):
+    color = np.array(color)  # color = [R, G, B]
+    pcd.colors = o3d.utility.Vector3dVector(np.tile(color, (len(pcd.points), 1)))
+    return pcd
+
 def DBSCAN(pcd):
     with o3d.utility.VerbosityContextManager(o3d.utility.VerbosityLevel.Debug) as cm:
         labels = np.array(pcd.cluster_dbscan(eps=0.3, min_points=10, print_progress=False))
