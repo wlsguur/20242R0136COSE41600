@@ -35,15 +35,15 @@ def DBSCAN(pcd):
     return pcd, labels
 
 def visualize_pcd_trajectory(pcd_list):
-    o3d.visualization.draw_geometries(pcd_list, window_name="Pedestrian trajectory", width=1600, height=1200)
+    o3d.visualization.draw_geometries(pcd_list, window_name="Pedestrian trajectory", width=1920, height=1080)
 
 def save_pcd_trajectory(pcd_list,
                         save_dir="result/", 
                         window_name="Pedestrian trajectory",
-                        point_size=2.0):
+                        point_size=1.0):
                                 
     vis = o3d.visualization.Visualizer()
-    vis.create_window(window_name=window_name, width=1600, height=1200)
+    vis.create_window(window_name=window_name, width=1920, height=1080)
     vis.get_render_option().point_size = point_size
 
     for geom in pcd_list:
@@ -64,22 +64,22 @@ def visualize_pcd_sequence(pcd_sequence,
                            save_dir="result/",
                            window_name="Pedestrian with bbox video",
                            point_size=1.0,
-                           fps=5):
+                           fps=10):
     
     vis = o3d.visualization.Visualizer()
-    vis.create_window(window_name=window_name, width=1600, height=1200)
+    vis.create_window(window_name=window_name, width=1920, height=1080)
     vis.get_render_option().point_size = point_size
 
     if save_video:
-        frame_width = 1600
-        frame_height = 1200
+        frame_width = 1920
+        frame_height = 1080
         fourcc = cv2.VideoWriter_fourcc(*'avc1')
         save_path = os.path.join(save_dir, "video.mp4")
         video_writer = cv2.VideoWriter(save_path, fourcc, fps, (frame_width, frame_height))
 
     for i in range(len(pcd_sequence)):
         vis.clear_geometries()
-        vis.add_geometry(pcd_sequence[i])
+        vis.add_geometry(set_color(pcd_sequence[i], color=(0,0,0)))
         if bbox_sequence[i] is not None:
             for bbox in bbox_sequence[i]:
                 vis.add_geometry(bbox)
