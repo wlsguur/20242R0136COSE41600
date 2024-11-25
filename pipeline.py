@@ -10,7 +10,6 @@ class ScanUpdatePipeline():
     def __init__(self):
         self.pcd_dataset = []
         self.pedestrian_list = []
-        self.moving_pcd_list = []
         self.bbox_list = []
         self.pcd_cur = None
         self.pcd_prev = None
@@ -32,9 +31,7 @@ class ScanUpdatePipeline():
         moving_pcd = get_moving_pcd(self.pcd_prev, self.pcd_cur, threshold=threshold)
         if moving_pcd is not None:
             moving_pcd, labels = DBSCAN(moving_pcd)
-            pedestrians, idxs, bboxes, centers = get_pedestrians(moving_pcd, labels)
-            moving_pcd = set_color(moving_pcd.select_by_index(idxs, invert=True), color=(0,0,0))
-            self.moving_pcd_list.append(moving_pcd)
+            pedestrians, bboxes, centers = get_pedestrians(moving_pcd, labels)
             pedestrians = set_color(pedestrians, color=(1,0,0))
             self.pedestrian_list.append(pedestrians)
             self.bbox_list.append(bboxes)
@@ -48,7 +45,7 @@ class ScanUpdatePipeline():
         temp_centers = []
         for center in self.centers_prev:
             if center is not None:
-                pedestrians, _, bboxes, centers = get_moved_pedestrian(center, self.pcd_cur)
+                pedestrians, bboxes, centers = get_moved_pedestrian(center, self.pcd_cur)
                 pedestrians = set_color(pedestrians, color=(0,0,1))
                 self.pedestrian_list.append(pedestrians)
                 temp_bboxes.extend(bboxes)
@@ -88,10 +85,10 @@ class ScanUpdatePipeline():
             os.makedirs(save_dir)
         
         if show_trajectory:
-            visualize_pcd_trajectory(self.pedestrian_list + self.moving_pcd_list)
+            visualize_pcd_trajectory(self.pedestrian_list + [set_color(self.pcd_dataset[0], color=(0,0,0))])
 
         if save_trajectory:
-            save_pcd_trajectory(self.pedestrian_list + self.moving_pcd_list,
+            save_pcd_trajectory(self.pedestrian_list + [set_color(self.pcd_dataset[0], color=(0,0,0))],
                                      save_dir=save_dir)
         if show_video or save_video:
             visualize_pcd_sequence(self.pcd_dataset,
