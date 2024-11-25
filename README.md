@@ -6,7 +6,7 @@ Computer Science and Engineering
 
 ---
 ## Quick start
-1. Locate pcd dataset at `data/`
+1. Locate pcd sequence dataset at `dataset/{data name}/pcd/`
 2. type following:
 ```
 python run.py
