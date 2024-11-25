@@ -5,6 +5,12 @@ Computer Science and Engineering
 2022320006  
 
 ---
+## Quick start
+1. Locate pcd dataset at `data/`
+2. type following:
+```
+python run.py
+```
 
 ## Methods
 
