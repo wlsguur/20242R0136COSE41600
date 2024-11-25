@@ -74,3 +74,11 @@ Computer Science and Engineering
   - **Red points** represent results of the **Scan** process.
   - **Blue points** represent results of the **Update** process.
 - Prediction trajectory and bounding box visualizations provided in the dataset.
+
+## References
+
+1. Y. Zhang, "A novel fast pedestrian recognition algorithm based on point cloud compression and boundary extraction," *PeerJ Computer Science*, vol. 9, p. e1426, 2023. doi: [10.7717/peerj-cs.1426](https://doi.org/10.7717/peerj-cs.1426).
+
+2. K. Liu, W. Wang, and J. Wang, "Pedestrian detection with LiDAR point clouds based on single template matching," *Electronics*, vol. 8, no. 7, p. 780, 2019. doi: [10.3390/electronics8070780](https://doi.org/10.3390/electronics8070780).
+
+3. K.-I. Na and B. Park, "Real-time 3D multi-pedestrian detection and tracking using 3D LiDAR point cloud for mobile robot," *ETRI Journal*, vol. 45, pp. 836–846, 2023. doi: [10.4218/etrij.2023-0116](https://doi.org/10.4218/etrij.2023-0116).
