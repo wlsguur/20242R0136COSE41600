@@ -63,31 +63,39 @@ def get_pedestrians(pcd, labels):
     min_z_value = -1.0
     max_z_value = 5.0
 
-    min_height = 0.5
-    max_height = 2.5
+    min_height = 0.2
+    max_height = 2.0
+
+    min_width_x = 0.2
+    max_width_x = 0.8
+
+    min_width_y = 0.2
+    max_width_y = 0.8
 
     bboxes = []
     centers = []
 
     pedestrians = o3d.geometry.PointCloud()
-    pedestrian_idxs = []
     for i in range(num_clusters):
         cluster_idxs = np.where(labels == i)[0]
         if min_points_in_cluster <= len(cluster_idxs) <= max_points_in_cluster:
             cluster_pcd = pcd.select_by_index(cluster_idxs)
             points = np.asarray(cluster_pcd.points)
-            z_values = points[:, 2]
-            z_min = z_values.min()
-            z_max = z_values.max()
+            x_min, x_max = points[:, 0].min(), points[:, 0].max()
+            y_min, y_max = points[:, 1].min(), points[:, 1].max()
+            z_min, z_max = points[:, 2].min(), points[:, 2].max()
 
             if min_z_value <= z_min and z_max <= max_z_value:
-                height_diff = z_max - z_min
-                if min_height <= height_diff <= max_height:
+                x_diff = x_max - x_min
+                y_diff = y_max - y_min
+                z_diff = z_max - z_min
+                if ((min_height <= z_diff <= max_height)
+                    and (min_width_x <= x_diff <= max_width_x)
+                    and (min_width_y <= y_diff <= max_width_y)):
                     bbox = cluster_pcd.get_axis_aligned_bounding_box()
                     bbox.color = (1, 0, 0) 
                     bboxes.append(bbox)
                     centers.append(points.mean(axis=0))
                     pedestrians += cluster_pcd
-                    pedestrian_idxs.extend(cluster_idxs)
 
-    return pedestrians, pedestrian_idxs, bboxes, centers
+    return pedestrians, bboxes, centers
