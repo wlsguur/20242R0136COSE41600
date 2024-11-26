@@ -24,7 +24,6 @@ class ScanUpdatePipeline():
                 continue
             pcd_path = os.path.join(data_dir, data_name)
             pcd = o3d.io.read_point_cloud(pcd_path)
-            pcd = preprocess_pcd(pcd)
             self.pcd_dataset.append(pcd)
 
     def scan(self, threshold=0.5):
@@ -57,6 +56,7 @@ class ScanUpdatePipeline():
         i = -1
         for pcd in tqdm(self.pcd_dataset, desc="Inference"):
             i += 1
+            pcd = preprocess_pcd(pcd)
             self.pcd_cur = pcd
 
             if i < period:
