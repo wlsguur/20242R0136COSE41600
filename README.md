@@ -79,7 +79,10 @@ python run.py
 - Detailed result for `01_straight_walk` dataset:
   - **Red points** represent results of the **Scan** process.
   - **Blue points** represent results of the **Update** process.
-- Prediction trajectory and bounding box visualizations provided in the dataset.
+  ![trajectory_detailed](https://github.com/user-attachments/assets/65f3ca8c-06a6-4fdc-b086-463202a4f715)
+
+  - Prediction trajectory and bounding box visualizations provided in the dataset.
+  ![bbox](https://github.com/user-attachments/assets/0dcbc6a6-b472-4774-906a-fe51776961ad)
 
 ## References
 
