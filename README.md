@@ -76,7 +76,7 @@ python run.py
 | Final parameters  | -1     | 5      | 0.2        | 2.0        | 0.2               | 0.8               | 0.2               | 0.8               |
 
 ### Results
-- Inference time: 40fps
+- Inference time: 12 fps
 - Detailed result for `01_straight_walk` dataset:
   - **Red points** represent results of the **Scan** process.
   - **Blue points** represent results of the **Update** process.
